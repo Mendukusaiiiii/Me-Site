@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Me Site</title>
+  <link rel="icon" href="Alice.png" type="image/x-icon" />
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(to bottom right, #FF0000, #00FFFF);
+      font-family: 'Segoe UI', sans-serif;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    canvas {
+      background: #111;
+      border: 3px solid gold;
+      margin-top: 20px;
+      margin-bottom: 60px;
+    }
+
+    .card {
+      background: rgba(0, 0, 0, 0.2);
+      border: 3px solid #ff0080;
+      border-radius: 20px;
+      text-align: center;
+      padding: 2rem;
+      width: 300px;
+      box-shadow: 0 0 15px #000;
+      position: relative;
+    }
+
+    .card::before {
+      position: absolute;
+      top: -12px;
+      left: -12px;
+      background: #00ffc3;
+      color: black;
+      font-size: 0.7rem;
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+
+    .avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: white;
+      margin: 0 auto 1rem;
+      display: block;
+      object-fit: cover;
+      border: 3px solid #ff0080
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      background: linear-gradient(to right, #FFC0CB, #00FFFF);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .name-subtitle {
+      margin-top: 8px;
+      font-size: 1rem;
+      color: #FFC0CB; 
+      font-style: normal;
+    }
+
+    .divider {
+      height: 2px;
+      background: gold;
+      margin: 1rem 0;
+      width: 100%;
+    }
+
+    .subtitle {
+      color: #d4aa00;
+      font-weight: bold;
+      margin: 0.5rem 0;
+      cursor: pointer;
+    }
+
+    .socials {
+      margin-top: 1rem;
+    }
+
+    .socials a {
+      margin: 0 8px;
+      display: inline-block;
+    }
+
+    .social-icon {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+      border-radius: 6px;
+      transition: transform 0.3s ease, filter 0.3s ease, opacity 0.3s ease;
+      display: block;
+    }
+
+    .socials a:hover .social-icon {
+      transform: scale(1.2);
+      filter: brightness(1.3);
+    }
+
+   
+    .twitter-icon {
+      content: url('Twitter.png'); 
+    }
+
+    .twitter-link:hover .twitter-icon {
+      content: url('X.png'); 
+    }
+    
+    .avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: white;
+      margin: 0 auto 1rem;
+      display: block;
+      object-fit: cover;
+      transition: transform 0.3s ease, filter 0.3s ease, opacity 0.3s ease; 
+    }
+
+    .avatar:hover {
+      transform: scale(1.1); 
+      filter: brightness(1.2); 
+    }
+
+    #restartBtn {
+      display: none;
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #ff0080;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #restartBtn:hover {
+      background-color: #ff3399;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <a href="https://www.youtube.com/watch?v=nlLhw1mtCFA" target="_blank">
+    <img src="Me.png" alt="Avatar" class="avatar">
+    </a>
+    <h1>Mendukusaiii</h1>
+    <p class="name-subtitle">Code_069</p>
+    <div class="divider"></div>
+    <p class="subtitle" id="lemon">Lemons 🍋</p>
+    <div class="divider"></div>
+    <div class="socials">
+      <a href="https://x.com/Code_069" target="_blank" class="twitter-link">
+        <img src="Twitter.png" class="social-icon twitter-icon" alt="Twitter">
+      </a>
+      <a href="mailto:mendukusaiiiii@gmail.com" id="emailLink"><img src="Email.png" class="social-icon" alt="Email"></a>
+      <a href="https://www.youtube.com/@code_069" target="_blank"><img src="Youtube.png" class="social-icon" alt="YouTube"></a>
+      <a href="https://mendukusaii.newgrounds.com/" target="_blank"><img src="Newgrounds.png" class="social-icon" alt="Newgrounds"></a>
+      <a href="https://scratch.mit.edu/users/Code_069/" target="_blank"><img src="Scratch.png" class="social-icon" alt="Scratch"></a>
+      <a href="https://mendukusai.itch.io/" target="_blank"><img src="Itch.io.png" class="social-icon" alt="Scratch"></a>
+    </div>
+    <div class="divider"></div>
+  </div>
+
+  <canvas id="game" width="300" height="400" style="display:none;"></canvas>
+  <button id="restartBtn">Restart Game</button>
+
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+    const restartBtn = document.getElementById("restartBtn");
+
+    let gameRunning = false;
+    let score = 0;
+    let mouseX = 0, mouseY = 0;
+
+    const player = { x: 150, y: 200, size: 10, speed: 3, lives: 3 };
+    const bullets = [];
+    const enemies = [];
+    const enemyBullets = [];
+    const powerUps = [];
+
+    const keys = {};
+    document.addEventListener("keydown", e => keys[e.key] = true);
+    document.addEventListener("keyup", e => keys[e.key] = false);
+
+    canvas.addEventListener("mousemove", e => {
+      const rect = canvas.getBoundingClientRect();
+      mouseX = e.clientX - rect.left;
+      mouseY = e.clientY - rect.top;
+    });
+
+    canvas.addEventListener("mousedown", shoot);
+
+    function shoot() {
+      const angle = Math.atan2(mouseY - player.y, mouseX - player.x);
+      bullets.push({
+        x: player.x,
+        y: player.y,
+        dx: Math.cos(angle) * 5,
+        dy: Math.sin(angle) * 5
+      });
+    }
+
+    function spawnEnemy() {
+      const side = Math.floor(Math.random() * 4);
+      let x, y;
+      switch (side) {
+        case 0: x = Math.random() * 300; y = 0; break;
+        case 1: x = 300; y = Math.random() * 400; break;
+        case 2: x = Math.random() * 300; y = 400; break;
+        case 3: x = 0; y = Math.random() * 400; break;
+      }
+      const angle = Math.atan2(player.y - y, player.x - x);
+      enemies.push({ x, y, dx: Math.cos(angle) * 1.5, dy: Math.sin(angle) * 1.5, shootTimer: 0 });
+    }
+
+    function drawPlayer() {
+      ctx.beginPath();
+      ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2);
+      ctx.fillStyle = "cyan";
+      ctx.fill();
+    }
+
+    function drawBullets() {
+      ctx.fillStyle = "cyan";
+      bullets.forEach(b => {
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, 3, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    function drawEnemies() {
+      ctx.fillStyle = "red";
+      enemies.forEach(e => {
+        ctx.beginPath();
+        ctx.arc(e.x, e.y, 10, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      ctx.fillStyle = "red";
+      enemyBullets.forEach(b => {
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, 3, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    function drawPowerUps() {
+      powerUps.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = p.type === "nuke" ? "pink" : "lime";
+        ctx.fill();
+      });
+    }
+
+    function drawScore() {
+      ctx.fillStyle = "white";
+      ctx.font = "14px Arial";
+      ctx.fillText("Score: " + score, 10, 20);
+      ctx.fillText("Lives: " + player.lives, 10, 40);
+    }
+
+    function gameOver() {
+      gameRunning = false;
+      ctx.fillStyle = "white";
+      ctx.font = "20px Arial";
+      ctx.fillText("GAME OVER", 80, 180);
+      ctx.font = "16px Arial";
+      ctx.fillText("Score: " + score, 90, 210);
+      restartBtn.style.display = "inline-block";
+    }
+
+    function loop() {
+      if (!gameRunning) return;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (keys["w"] || keys["ArrowUp"]) player.y -= player.speed;
+      if (keys["s"] || keys["ArrowDown"]) player.y += player.speed;
+      if (keys["a"] || keys["ArrowLeft"]) player.x -= player.speed;
+      if (keys["d"] || keys["ArrowRight"]) player.x += player.speed;
+
+      player.x = Math.max(10, Math.min(canvas.width - 10, player.x));
+      player.y = Math.max(10, Math.min(canvas.height - 10, player.y));
+
+      bullets.forEach(b => {
+        b.x += b.dx;
+        b.y += b.dy;
+      });
+
+      for (let i = bullets.length - 1; i >= 0; i--) {
+        if (bullets[i].x < 0 || bullets[i].x > 300 || bullets[i].y < 0 || bullets[i].y > 400) {
+          bullets.splice(i, 1);
+        }
+      }
+
+      enemies.forEach(e => {
+        e.x += e.dx;
+        e.y += e.dy;
+        e.shootTimer++;
+        if (e.shootTimer > 120) {
+          const angle = Math.atan2(player.y - e.y, player.x - e.x);
+          enemyBullets.push({
+            x: e.x,
+            y: e.y,
+            dx: Math.cos(angle) * 2,
+            dy: Math.sin(angle) * 2
+          });
+          e.shootTimer = 0;
+        }
+      });
+
+      enemyBullets.forEach(b => {
+        b.x += b.dx;
+        b.y += b.dy;
+      });
+
+      for (let i = enemies.length - 1; i >= 0; i--) {
+        for (let j = bullets.length - 1; j >= 0; j--) {
+          const dx = bullets[j].x - enemies[i].x;
+          const dy = bullets[j].y - enemies[i].y;
+          if (Math.hypot(dx, dy) < 10) {
+            enemies.splice(i, 1);
+            bullets.splice(j, 1);
+            score++;
+            break;
+          }
+        }
+      }
+
+      for (let i = enemyBullets.length - 1; i >= 0; i--) {
+        const dx = enemyBullets[i].x - player.x;
+        const dy = enemyBullets[i].y - player.y;
+        if (Math.hypot(dx, dy) < player.size) {
+          enemyBullets.splice(i, 1);
+          player.lives--;
+          if (player.lives <= 0) gameOver();
+        }
+      }
+
+      for (let i = powerUps.length - 1; i >= 0; i--) {
+        const dx = powerUps[i].x - player.x;
+        const dy = powerUps[i].y - player.y;
+        if (Math.hypot(dx, dy) < 15) {
+          const type = powerUps[i].type;
+          powerUps.splice(i, 1);
+          if (type === "nuke") {
+            enemies.length = 0;
+            enemyBullets.length = 0;
+            score += 5;
+          } else {
+            player.lives++;
+          }
+        }
+      }
+
+      drawPlayer();
+      drawBullets();
+      drawEnemies();
+      drawPowerUps();
+      drawScore();
+
+      requestAnimationFrame(loop);
+    }
+
+    setInterval(() => {
+      if (gameRunning) spawnEnemy();
+    }, 1000);
+
+    setInterval(() => {
+      if (gameRunning) {
+        powerUps.push({
+          x: Math.random() * 280 + 10,
+          y: Math.random() * 380 + 10,
+          size: 8,
+          type: "life",
+          timer: 600
+        });
+      }
+    }, 8000);
+
+    setInterval(() => {
+      if (gameRunning && Math.random() < 0.2) {
+        powerUps.push({
+          x: Math.random() * 280 + 10,
+          y: Math.random() * 380 + 10,
+          size: 8,
+          type: "nuke",
+          timer: 600
+        });
+      }
+    }, 8000);
+
+    function startGame() {
+      canvas.style.display = "block";
+      restartBtn.style.display = "none";
+      gameRunning = true;
+      player.x = 150;
+      player.y = 200;
+      player.lives = 3;
+      score = 0;
+      enemies.length = 0;
+      bullets.length = 0;
+      enemyBullets.length = 0;
+      powerUps.length = 0;
+      loop();
+
+      canvas.scrollIntoView({ behavior: "smooth" });
+    }
+
+    document.getElementById("lemon").addEventListener("click", startGame);
+    restartBtn.addEventListener("click", startGame);
+
+
+    const emailLink = document.getElementById("emailLink");
+    emailLink.addEventListener("click", (event) => {
+      event.preventDefault();  
+      alert("Send email to mendukusaiiiii@gmail.com?");
+
+
+      window.location.href = "mailto:mendukusaiiiii@gmail.com";
+    });
+  </script>
+</body>
+</html>
+
+
+
