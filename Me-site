@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Horse Racing Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0c3c60;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+
+    #raceTrack {
+      margin-top: 20px;
+      position: relative;
+      width: 100%;
+      max-width: 800px;
+      margin: auto;
+      height: 220px;
+      background: #3e8e41;
+      border: 5px solid #fff;
+      overflow: hidden;
+    }
+
+    .horse {
+      position: absolute;
+      width: 80px;
+      height: 40px;
+      background: brown;
+      border-radius: 10px;
+      text-align: center;
+      line-height: 40px;
+      color: white;
+      font-weight: bold;
+      z-index: 2;
+    }
+
+    #finishLine {
+      position: absolute;
+      top: 0;
+      right: 100px; /* Same as finishLine position in JS */
+      width: 5px;
+      height: 100%;
+      background: repeating-linear-gradient(
+        to bottom,
+        white,
+        white 10px,
+        red 10px,
+        red 20px
+      );
+      z-index: 1;
+    }
+
+    #controls {
+      margin: 20px;
+    }
+
+    select, input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 5px;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 20px;
+    }
+
+    #balance {
+      font-size: 18px;
+      margin-top: 10px;
+      color: #ffd700;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🏇 Horse Racing Game</h1>
+
+<div id="balance">Balance: 1000 coins</div>
+
+<div id="controls">
+  <label for="betHorse">Choose your horse (1-4): </label>
+  <select id="betHorse">
+    <option value="1">Horse 1</option>
+    <option value="2">Horse 2</option>
+    <option value="3">Horse 3</option>
+    <option value="4">Horse 4</option>
+  </select><br>
+
+  <label for="betAmount">Bet Amount: </label>
+  <input type="number" id="betAmount" value="100" min="1"><br>
+
+  <button onclick="startRace()">Start Race</button>
+</div>
+
+<div id="raceTrack">
+  
+  <div id="finishLine"></div>
+
+  
+  <div class="horse" id="horse1" style="top: 10px;">🐴 1</div>
+  <div class="horse" id="horse2" style="top: 60px;">🐴 2</div>
+  <div class="horse" id="horse3" style="top: 110px;">🐴 3</div>
+  <div class="horse" id="horse4" style="top: 160px;">🐴 4</div>
+</div>
+
+<div id="result"></div>
+
+<script>
+  const horses = [
+    document.getElementById('horse1'),
+    document.getElementById('horse2'),
+    document.getElementById('horse3'),
+    document.getElementById('horse4')
+  ];
+
+  let balance = 1000;
+
+  function updateBalance() {
+    document.getElementById("balance").textContent = `Balance: ${balance} coins`;
+  }
+
+  function resetRace() {
+    horses.forEach(h => h.style.left = '0px');
+    document.getElementById("result").textContent = '';
+  }
+
+  function startRace() {
+    resetRace();
+
+    const betHorse = parseInt(document.getElementById('betHorse').value);
+    const betAmount = parseInt(document.getElementById('betAmount').value);
+
+    if (isNaN(betAmount) || betAmount <= 0) {
+      alert("Please enter a valid bet amount.");
+      return;
+    }
+
+    if (betAmount > balance) {
+      alert("You don't have enough coins!");
+      return;
+    }
+
+    
+    document.getElementById('betHorse').disabled = true;
+	document.getElementById('betAmount').disabled = true;
+    document.querySelector('button').disabled = true;
+
+    const finishLine = document.getElementById('raceTrack').offsetWidth - 100;
+    let positions = [0, 0, 0, 0];
+
+    const raceInterval = setInterval(() => {
+      for (let i = 0; i < horses.length; i++) {
+        const move = Math.floor(Math.random() * 10);
+        positions[i] += move;
+        horses[i].style.left = positions[i] + 'px';
+
+        if (positions[i] >= finishLine) {
+          clearInterval(raceInterval);
+          const winner = i + 1;
+
+          if (winner === betHorse) {
+            balance += betAmount;
+            document.getElementById('result').textContent = `🏁 Horse ${winner} wins! You WON ${betAmount} coins!`;
+          } else {
+            balance -= betAmount;
+            document.getElementById('result').textContent = `🏁 Horse ${winner} wins! You LOST ${betAmount} coins.`;
+          }
+
+          updateBalance();
+
+          if (balance > 0) {
+            document.getElementById('betHorse').disabled = false;
+            document.getElementById('betAmount').disabled = false;
+            document.querySelector('button').disabled = false;
+          } else {
+            document.getElementById('result').textContent += " 💸 You're out of coins! Refresh to restart.";
+          }
+        }
+      }
+    }, 100);
+  }
+
+  updateBalance();
+</script>
+
+</body>
+</html>
