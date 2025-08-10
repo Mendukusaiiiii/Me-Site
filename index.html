@@ -155,7 +155,19 @@
   </style>
 </head>
 <body>
-
+  <audio id="bgMusic" src="2 23_AM.mp3" loop></audio>
+  <button id="muteBtn" style="
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    padding: 8px 14px;
+    background-color: #ff0080;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    z-index: 1000;
+  ">Mute</button>
   <div class="card">
     <a href="https://www.youtube.com/watch?v=nlLhw1mtCFA" target="_blank">
     <img src="Me.png" alt="Avatar" class="avatar">
@@ -440,6 +452,26 @@
 
       window.location.href = "mailto:mendukusaiiiii@gmail.com";
     });
+	
+	const bgMusic = document.getElementById("bgMusic");
+    const muteBtn = document.getElementById("muteBtn");
+
+    muteBtn.addEventListener("click", () => {
+     if (bgMusic.muted) {
+    bgMusic.muted = false;
+    muteBtn.textContent = "Mute";
+  } else {
+    bgMusic.muted = true;
+    muteBtn.textContent = "Unmute";
+  }
+});
+    window.addEventListener("load", () => {
+     const enableAudio = confirm("Enable Audio?");
+     if (enableAudio) {
+    bgMusic.play().catch(err => console.warn("Autoplay blocked:", err));
+    muteBtn.style.display = "block";
+  }
+});
   </script>
 </body>
 </html>
